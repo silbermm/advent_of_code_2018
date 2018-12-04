@@ -10,7 +10,6 @@ defmodule Day1 do
   end
 
   defp _get_duplicate(current_freq, current_freq_lst, [h | _]), do: h
-
   defp _get_duplicate(current_freq, current_freq_lst, []) do
     t = file_input
     {total, lst} = Enum.reduce(t, {current_freq, current_freq_lst}, &list_of_frequencies/2)
@@ -29,30 +28,11 @@ defmodule Day1 do
     String.split(result, "\n")
   end
 
+  defp list_of_frequencies("", val), do: val
   defp list_of_frequencies(x, {acc, lst}) do
-    symbol = String.slice(x, 0..0)
-    num = num_from_string(x)
-
-    case symbol do
-      "+" ->
-        val = acc + num
-        {val, lst ++ [val]}
-
-      "-" ->
-        val = acc - num
-        {val, lst ++ [val]}
-
-      _ ->
-        {acc, lst}
-    end
+    num = String.to_integer(x)
+    val = acc + num
+    {val, lst ++ [val]}
   end
 
-  defp num_from_string(x) do
-    x
-    |> String.slice(1..-1)
-    |> to_integer
-  end
-
-  defp to_integer(""), do: 0
-  defp to_integer(x), do: String.to_integer(x)
 end
