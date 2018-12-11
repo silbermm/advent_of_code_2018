@@ -1,9 +1,11 @@
 defmodule Day2 do
   def checksum() do
-    input = input_from_file
-    dups = Enum.map(input, &get_duplicates/1)
-    count_duplicates(dups) * count_triples(dups)
+    input_from_file
+    |> Enum.map(&get_duplicates/1)
+    |> build_checksum
   end
+
+  defp build_checksum(dups), do: count_duplicates(dups) * count_triples(dups)
 
   def correct_box() do
     input = input_from_file
@@ -41,41 +43,28 @@ defmodule Day2 do
     String.split(result, "\n")
   end
 
-  defp count_duplicates(dups) do
-    doubles =
-      dups
-      |> Enum.filter(fn {x, _} -> x end)
-      |> Enum.count()
-  end
+  defp count_duplicates(dups), do: Enum.count(dups, fn {x, _} -> x end)
 
-  defp count_triples(dups) do
-    doubles =
-      dups
-      |> Enum.filter(fn {_, y} -> y end)
-      |> Enum.count()
-  end
+  defp count_triples(dups), do: Enum.count(dups, fn {_, y} -> y end)
 
   defp get_duplicates(str) do
-    lst = String.graphemes(str)
-    dups = lst -- Enum.uniq(lst)
-
-    mp =
-      Enum.reduce(lst, %{}, fn x, acc ->
-        if Map.has_key?(acc, x) do
-          Map.update!(acc, x, &(&1 + 1))
-        else
-          Map.put_new(acc, x, 1)
-        end
-      end)
-
-    {has_double?(mp), has_triple?(mp)}
+    str
+    |> String.graphemes()
+    |> Enum.reduce(%{}, &build_letter_count/2)
+    |> count_tuple
   end
 
-  defp has_double?(map) do
-    Enum.any?(map, fn {_, count} -> count == 2 end)
+  defp count_tuple(mp), do: {has_double?(mp), has_triple?(mp)}
+
+  defp build_letter_count(x, acc) do
+    if Map.has_key?(acc, x) do
+      Map.update!(acc, x, &(&1 + 1))
+    else
+      Map.put_new(acc, x, 1)
+    end
   end
 
-  defp has_triple?(map) do
-    Enum.any?(map, fn {_, count} -> count == 3 end)
-  end
+  defp has_double?(map), do: Enum.any?(map, fn {_, count} -> count == 2 end)
+
+  defp has_triple?(map), do: Enum.any?(map, fn {_, count} -> count == 3 end)
 end
